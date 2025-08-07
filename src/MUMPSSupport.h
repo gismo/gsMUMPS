@@ -249,20 +249,114 @@ void MumpsBase<Derived>::init(bool const is_matrix_symmetric)
 
     solver_api_type::mumps_c(m_solver);
 
-    // Verbosity levels (six is lots of noise)
-    m_solver.icntl[0] = 6;
-    m_solver.icntl[1] = 6;
-    m_solver.icntl[2] = 6;
-    m_solver.icntl[3] = 6;
-
-    // Ordering algorithm
-    m_solver.icntl[6] = internal::mumps::ordering::automatic;
-
-    // Iterative refinement limit
-    m_solver.icntl[9] = 100;
-
-    // Compute the residual
-    m_solver.icntl[10] = internal::mumps::residual::cheap;
+    // ICNTL VALUES, BASED ON userguide_5.8.1.pdf
+    // ICNTL1 - the output stream for error messages
+    m_solver.icntl[0] = 6; // standard output stream
+    // ICNTL2 - the output stream for diagnostic printing and statistics local to each MPI process
+    m_solver.icntl[1] = 0; // suppress messages
+    // ICNTL3 - the output stream for global information, collected on the host
+    m_solver.icntl[2] = 6; // standard output stream
+    // ICNTL4 - the level of printing for error, warning, and diagnostic messages
+    m_solver.icntl[3] = 2; // errors, warnings and main statistics printed
+    // ICNTL5 - controls the matrix input format (see Subsection 5.4.2)
+    m_solver.icntl[4] = 0; // assembled format
+    // ICNTL6 - permutes the matrix to a zero-free diagonal and/or scale the matrix (see Subsection 3.2 and Subsection 5.5.2).
+    m_solver.icntl[5] = 7; // automatic choice done by the package
+    // ICNTL7 - computes a symmetric permutation (ordering) to determine the pivot order to be used for the factorization in case of sequential analysis (ICNTL(28)=1). See Subsection 3.2 and Subsection 5.6.
+    m_solver.icntl[6] = internal::mumps::ordering::automatic; // automatic ordering
+    // ICNTL8 - describes the scaling strategy (see Subsection 5.5)
+    m_solver.icntl[7] = 77; // automatic scaling
+    // ICNTL9 - computes the solution using A or A^T
+    m_solver.icntl[8] = 1; // AX=B is solved
+    // ICNTL10 - applies the iterative refinement to the computed solution (see Subsection 5.8).
+    m_solver.icntl[9] = 0;
+    // ICNTL11 -  computes statistics related to an error analysis of the linear system solved (Ax = b or AT x = b (see ICNTL(9))). See Subsection 5.9
+    m_solver.icntl[10] = internal::mumps::residual::none;
+    // ICNTL12 - defines an ordering strategy for symmetric matrices (SYM = 2) (see [25] for more details) and is used, in conjunction with ICNTL(6), to add constraints to the ordering algorithm (ICNTL(7) option)
+    m_solver.icntl[11] = 0; // automatic
+    // ICNTL13 - controls the parallelism of the root node (valid only when multiple processors are being used)
+    m_solver.icntl[12] = 0; // parallel factorization on the root node
+    // ICNTL14 - controls the percentage increase in the estimated working space
+    m_solver.icntl[13] = 20; // 20% increase
+    // ICNTL15 - exploits compression of the input matrix resulting from a block format, see Subsection 5.7.
+    m_solver.icntl[14] = 0; // no compression
+    // ICNTL16 - controls the setting of the number of OpenMP threads, see Subsection 5.21 by MUMPS when the setting of multithreading is not possible outside MUMPS (see Subsection 3.13).
+    m_solver.icntl[15] = 0; // nothing is done
+    // ICNTL17 - reserved for future use
+    // m_solver.icntl[16] = 0;
+    // ICNTL18 - defines the strategy for the distributed input matrix (only for assembled matrix, see Subsection 5.4.2).
+    m_solver.icntl[17] = 0; // input matrix centralized on the host
+    // ICNTL19 - computes the Schur complement matrix (see Subsection 5.18).
+    m_solver.icntl[18] = 0; // complete factorization
+    // ICNTL20 - determines the format (dense, sparse, or distributed) of the right-hand sides
+    m_solver.icntl[19] = 0; // dense right-hand side
+    // ICNTL21 - determines the distribution (centralized or distributed) of the solution vectors.
+    m_solver.icntl[20] = 0; // assembled centralized format
+    // ICNTL22 - controls the in-core/out-of-core (OOC) factorization and solve.
+    m_solver.icntl[21] = 0; // in-core factorization
+    // ICNTL23 - corresponds to the maximum size of the working memory in MegaBytes that MUMPS can allocate per working process, see Subsection 5.11 for more details.
+    m_solver.icntl[22] = 0; // each processor will allocate workspace based on the estimates computed during the analysis
+    // ICNTL24 - controls the detection of null pivot rows
+    m_solver.icntl[23] = 0; // null pivot row detection disabled
+    // ICNTL25 - controls the computation of a null space basis
+    m_solver.icntl[24] = 0; // null space basis not computed
+    // ICNTL26 -  drives the solution phase if a Schur complement matrix has been computed (ICNTL(19)̸ =0), see Subsection 3.18 for details
+    m_solver.icntl[25] = 0; // normal solution phase
+    // ICNTL27 - controls the blocking size for multiple right-hand sides
+    m_solver.icntl[26] = -32; // automatic choice
+    // ICNTL28 - controls the ordering strategy
+    m_solver.icntl[27] = 0; // automatic choice between sequential and parallel ordering
+    // ICNTL29 - controls the parallel ordering tool
+    m_solver.icntl[28] = 0; // automatic choice of parallel ordering tool
+    // ICNTL30 - controls the computation of some entries of the inverse
+    m_solver.icntl[29] = 0; // inverse entries not computed
+    // ICNTL31 - controls which factors may be discarded during factorization
+    m_solver.icntl[30] = 0; // factors kept during factorization
+    // ICNTL32 - performs forward elimination during factorization
+    m_solver.icntl[31] = 0; // standard factorization
+    // ICNTL33 - computes the determinant of the input matrix
+    m_solver.icntl[32] = 0; // determinant not computed
+    // ICNTL34 - controls conservation of OOC files during save/restore
+    m_solver.icntl[33] = 0; // out-of-core files marked for deletion
+    // ICNTL35 - controls activation of BLR feature
+    m_solver.icntl[34] = 0; // standard multifrontal factorization
+    // ICNTL36 - controls choice of BLR factorization variant
+    m_solver.icntl[35] = 0; // UFSC variant
+    // ICNTL37 - controls BLR compression of contribution blocks
+    m_solver.icntl[36] = 0; // contribution blocks not compressed
+    // ICNTL38 - estimates compression rate of LU factors
+    m_solver.icntl[37] = 600; // 60% compression rate estimate
+    // ICNTL39 - estimates compression rate of contribution blocks
+    m_solver.icntl[38] = 500; // 50% compression rate estimate
+    // ICNTL40-47 - reserved in current version
+    // m_solver.icntl[39] = 0;
+    // m_solver.icntl[40] = 0;
+    // m_solver.icntl[41] = 0;
+    // m_solver.icntl[42] = 0;
+    // m_solver.icntl[43] = 0;
+    // m_solver.icntl[44] = 0;
+    // m_solver.icntl[45] = 0;
+    // m_solver.icntl[46] = 0;
+    // ICNTL48 - multithreading with tree parallelism
+    m_solver.icntl[47] = 1; // multithreaded tree parallelism activated
+    // ICNTL49 - compact workarray at end of factorization
+    m_solver.icntl[48] = 0; // nothing done
+    // ICNTL50-55 - reserved in current version
+    // m_solver.icntl[49] = 0;
+    // m_solver.icntl[50] = 0;
+    // m_solver.icntl[51] = 0;
+    // m_solver.icntl[52] = 0;
+    // m_solver.icntl[53] = 0;
+    // m_solver.icntl[54] = 0;
+    // ICNTL56 - detects pseudo-singularities and uses rank-revealing factorization
+    m_solver.icntl[55] = 0; // standard factorization
+    // ICNTL57 - reserved in current version
+    // m_solver.icntl[56] = 0;
+    // ICNTL58 - defines options for symbolic factorization
+    m_solver.icntl[57] = 2; // column count based symbolic factorization
+    // ICNTL59-60 - not used in current version
+    // m_solver.icntl[58] = 0;
+    // m_solver.icntl[59] = 0;
 
     m_size = 0;
 
