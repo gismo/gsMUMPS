@@ -191,11 +191,17 @@ public:
      *
      * \returns a reference to the MUMPS integer parameter at index \c i.
      */
-    MUMPS_INT & ICNTL(int i)
+    int & ICNTL(int i)
     {
         eigen_assert(m_isInitialized && "Decomposition is not initialized.");
         eigen_assert(i > 0 && i <= sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0]) && "icntl index out of bounds (1 to "<<sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0])<<")");
-        return m_solver.icntl[i-i];
+        return m_solver.icntl[i-1];
+    }
+    const int & ICNTL(int i) const
+    {
+        eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+        eigen_assert(i > 0 && i <= sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0]) && "icntl index out of bounds (1 to "<<sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0])<<")");
+        return m_solver.icntl[i-1];
     }
 
 protected:

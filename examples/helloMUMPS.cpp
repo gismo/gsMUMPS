@@ -32,28 +32,29 @@ int main(int argc, char *argv[])
 
     try { cmd.getValues(argc,argv); } catch (int rv) { return rv; }
 
-// Initialize the MPI environment
-    const gsMpi & mpi = gsMpi::init(argc, argv);
+// // Initialize the MPI environment
+//     const gsMpi & mpi = gsMpi::init(argc, argv);
 
-    // Get the world communicator
-    gsMpiComm comm = mpi.worldComm();
+//     // Get the world communicator
+//     gsMpiComm comm = mpi.worldComm();
 
-    //Get size and rank of the processor
-    int _rank = comm.rank();
-    int _size = comm.size();
+//     //Get size and rank of the processor
+//     int _rank = comm.rank();
+//     int _size = comm.size();
 
-    if (0==_rank)
-    {
+//     if (0==_rank)
+//     {
         gsInfo << "Hello MUMPS!\n";
         #ifdef _OPENMP
-        gsInfo<<"Running on "<<_size<<" processes with "<<omp_get_max_threads()<<" threads.\n";
+        gsInfo<<"Running with "<<omp_get_max_threads()<<" threads.\n";
         #else
-        gsInfo<<"Running on "<<_size<<" processes.\n";
+        gsInfo<<"Running with 1 thread.\n";
         #endif
-    }
+//     }
 
     // Initialize MUMPS solver
     gsEigen::MUMPSLDLT<gsSparseMatrix<>,gsEigen::Lower> solver;
+    solver.ICNTL(4) = 0;
 
     gsSparseMatrix<real_t, RowMajor>  Q;
     gsMatrix<>        b, x;
