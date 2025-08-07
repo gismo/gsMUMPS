@@ -184,10 +184,19 @@ public:
         return m_info;
     }
 
-    // gsAsMatrix<int> icntl()
-    // {
-    //     return gsAsMatrix<int>(m_solver.icntl, 1, solver_api_type::MUMPS_ICNTL_SIZE);
-    // }
+    /**
+     * \brief Access to the MUMPS integer parameters.
+     *
+     * \note Follows the 1-based numbering in the manual
+     *
+     * \returns a reference to the MUMPS integer parameter at index \c i.
+     */
+    MUMPS_INT & ICNTL(int i)
+    {
+        eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+        eigen_assert(i > 0 && i <= sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0]) && "icntl index out of bounds (1 to "<<sizeof(m_solver.icntl)/sizeof(m_solver.icntl[0])<<")");
+        return m_solver.icntl[i-i];
+    }
 
 protected:
     // Initialize the MUMPS data structure, check the matrix
