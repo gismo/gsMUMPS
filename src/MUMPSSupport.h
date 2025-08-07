@@ -184,6 +184,11 @@ public:
         return m_info;
     }
 
+    // gsAsMatrix<int> icntl()
+    // {
+    //     return gsAsMatrix<int>(m_solver.icntl, 1, solver_api_type::MUMPS_ICNTL_SIZE);
+    // }
+
 protected:
     // Initialize the MUMPS data structure, check the matrix
     void init(bool const is_matrix_symmetric);

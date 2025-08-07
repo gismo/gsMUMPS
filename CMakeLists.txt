@@ -12,7 +12,7 @@ project(gsMUMPS)
 include(gsConfig)
 
 ## Collect files
-aux_header_directory     (${CMAKE_CURRENT_SOURCE_DIR}/src ${PROJECT_NAME}_H  )
+aux_header_directory(${CMAKE_CURRENT_SOURCE_DIR}/src ${PROJECT_NAME}_H)
 
 if( (NOT GISMO_BUILD_LIB) )
   aux_instance_directory (${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_NAME}_INS)
