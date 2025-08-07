@@ -523,9 +523,14 @@ public:
     typedef typename MatrixType::StorageIndex StorageIndex;
 
 public:
-    MUMPSLU() : Base() {}
 
-    explicit MUMPSLU(const MatrixType& matrix) : Base() { compute(matrix); }
+    MUMPSLU() : Base() { init(true); }
+
+    explicit MUMPSLU(const MatrixType& matrix) : Base()
+    {
+        init(true);
+        compute(matrix);
+    }
 
     /**
      * Compute the LU multifrontal factorization of \p matrix.
@@ -534,7 +539,7 @@ public:
     void compute(const MatrixType& matrix)
     {
         allocate_coordinate_format(matrix);
-        Base::compute(matrix);
+        Base::compute();
     }
 
     /**
@@ -587,6 +592,8 @@ protected:
     }
 
 protected:
+    using Base::init;
+
     using Base::m_coeffs;
     using Base::m_cols;
     using Base::m_rows;
@@ -705,8 +712,6 @@ protected:
     using Base::m_coeffs;
     using Base::m_cols;
     using Base::m_rows;
-
-    using Base::m_solver;
 
     using Base::m_size;
 };
