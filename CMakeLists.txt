@@ -11,6 +11,12 @@ project(gsMUMPS)
 # Apply G+Smo config
 include(gsConfig)
 
+# Check if MUMPS was found by dependencies.cmake
+if(NOT MUMPS_FOUND)
+  message(WARNING "MUMPS not found. Skipping gsMUMPS module.")
+  return()
+endif()
+
 ## Collect files
 aux_header_directory(${CMAKE_CURRENT_SOURCE_DIR}/src ${PROJECT_NAME}_H)
 
@@ -20,9 +26,6 @@ if( (NOT GISMO_BUILD_LIB) )
     LIST( REMOVE_ITEM ${PROJECT_NAME}_CPP ${${PROJECT_NAME}_INS})
   endif()
 endif()
-
-execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindMUMPS.cmake ${CMAKE_SOURCE_DIR}/cmake/)
-find_package(MUMPS REQUIRED)
 
 # Add object library
 add_library(${PROJECT_NAME} OBJECT
@@ -39,31 +42,20 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set(gismo_MODULES ${gismo_MODULES} $<TARGET_OBJECTS:${PROJECT_NAME}>
   CACHE INTERNAL "G+Smo modules" )
 
-#Symlink include dir (in case your headers are in /src)
+#Symlink include dir
 execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}"
-  DESTINATION include/gismo
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
+  DESTINATION include/gismo/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.h" )
-
-# Include directory
-set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${MUMPS_INCLUDE_DIR}
-  CACHE INTERNAL "Gismo include directories" FORCE)
-
-include_directories(${GISMO_INCLUDE_DIRS})
-
-# Linker
-set(gismo_LINKER ${gismo_LINKER} ${MUMPS_LIBRARIES}
-  CACHE INTERNAL "${PROJECT_NAME} extra linker objects" FORCE)
 
 # add example files
 aux_cpp_directory(${CMAKE_CURRENT_SOURCE_DIR}/examples FILES)
 foreach(file ${FILES})
     add_gismo_executable(${file})
-    get_filename_component(tarname ${file} NAME_WE) # name without extension
+    get_filename_component(tarname ${file} NAME_WE)
     set_property(TEST ${tarname} PROPERTY LABELS "${PROJECT_NAME}")
     set_target_properties(${tarname} PROPERTIES FOLDER "${PROJECT_NAME}")
-    # install the example executables (optionally)
     install(TARGETS ${tarname} DESTINATION "${BIN_INSTALL_DIR}" COMPONENT exe OPTIONAL)
 endforeach(file ${FILES})
 
@@ -71,3 +63,5 @@ endforeach(file ${FILES})
 aux_gs_cpp_directory(${PROJECT_SOURCE_DIR}/unittests unittests_SRCS)
 set(gismo_UNITTESTS ${gismo_UNITTESTS} ${unittests_SRCS}
   CACHE INTERNAL "gismo list of unittests")
+
+message(STATUS "gsMUMPS module configured successfully")
